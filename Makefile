@@ -1,6 +1,6 @@
 CC = gcc
 SDL_CFLAGS = $(shell sdl2-config --cflags)
-SDL_LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lSDL2_mixer
+SDL_LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image
 CFLAGS = -std=c99 -D_POSIX_SOURCE -g $(SDL_CFLAGS)
 LINK = $(SDL_LDFLAGS) -lm
 VPATH = src/
