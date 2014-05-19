@@ -47,8 +47,8 @@ void get_tileset(SDL_Rect set[NUM_TILES])
 int initialize_graphics(void)
 {
 	int flags = GFX_INIT_FLAGS;
-	char *driver;
 	int ret;
+
 	ret = IMG_Init(flags);
 	if((ret & flags) != flags)
 		img_report_error();

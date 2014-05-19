@@ -11,39 +11,52 @@
 
 #include "tower.h"
 #include "graphics.h"
-#include "player.h"
+#include "cursor.h"
 #include "map.h"
+
+#define FPS 60
 
 bool debug;
 extern int camera_x;
 extern int camera_y;
 
+void cap_frame_rate(void)
+{
+	static uint32_t last = 0;
+	uint32_t curr;
+
+	if((curr = SDL_GetTicks() - last) < 1000.f / FPS)
+		SDL_Delay((1000.f / FPS ) - curr);
+	last = SDL_GetTicks();
+}
+
 void main_game_loop(game_t *game)
 {
 	SDL_Event event;
-	int fps;
-	int ticks;
-	player_t *player; 
+	cursor_t *cursor; 
 	map_t *map;
 
-	player = initialize_player("res/sprites/cursor.png", game->renderer, 
-			WIN_WIDTH / 2, WIN_HEIGHT / 2);
 	map = initialize_map(game->renderer, "res/sprites/tile.png");
+	cursor = initialize_cursor("res/sprites/cursor.png", game->renderer, 
+			map->tiles[MAP_WIDTH / 2][MAP_HEIGHT / 2]->rect.x,
+			map->tiles[MAP_WIDTH / 2][MAP_HEIGHT / 2]->rect.y);
 
+	initialize_camera(game, map);
 	SDL_SetRelativeMouseMode(true);
+	cap_frame_rate();
 
 	while(game->running){
-		while(SDL_WaitEventTimeout(&event, 10))
-			handle_input(event, game, player, map);
+		while(SDL_WaitEventTimeout(&event, 0.5))
+			handle_input(event, game, cursor, map);
 		SDL_WarpMouseInWindow(game->window, camera_x, camera_y);
+
 		SDL_RenderClear(game->renderer);
+
 		draw_map(map);
-		update_player(map, player);
+		update_cursor(map, cursor);
+
 		SDL_RenderPresent(game->renderer);
-		ticks = SDL_GetTicks();
-		fps = (1000 / 60) - ticks;
-		if(ticks < (1000 / 60))
-			SDL_Delay(fps);
+		cap_frame_rate();
 	}
 }
 

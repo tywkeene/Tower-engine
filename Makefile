@@ -1,12 +1,12 @@
 CC = gcc
 SDL_CFLAGS = $(shell sdl2-config --cflags)
 SDL_LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image
-CFLAGS = -std=c99 -D_POSIX_SOURCE -g $(SDL_CFLAGS)
+CFLAGS = -std=c99 -D_POSIX_SOURCE -Wall -g $(SDL_CFLAGS)
 LINK = $(SDL_LDFLAGS) -lm
 VPATH = src/
 OUT = bin/
 OBJ = obj/
-SRCS = tower.c map.c player.c graphics.c
+SRCS = tower.c map.c cursor.c graphics.c
 
 .PHONY: all clean
 all: tower
@@ -28,3 +28,4 @@ tower: $(SRCS:.c=.o)
 clean :
 	rm -f *.o; \
 	rm -f ./bin/tower
+	rm -f *.d
