@@ -37,18 +37,18 @@ void main_game_loop(game_t *game)
 	map_t *map;
 
 	map = initialize_map(game->renderer, "res/sprites/tile.png");
+
 	cursor = initialize_cursor("res/sprites/cursor.png", game->renderer, 
 			map->tiles[MAP_WIDTH / 2][MAP_HEIGHT / 2]->rect.x,
 			map->tiles[MAP_WIDTH / 2][MAP_HEIGHT / 2]->rect.y);
 
 	initialize_camera(game, map);
-	SDL_SetRelativeMouseMode(true);
 	cap_frame_rate();
 
 	while(game->running){
 		while(SDL_WaitEventTimeout(&event, 0.5))
 			handle_input(event, game, cursor, map);
-		SDL_WarpMouseInWindow(game->window, camera_x, camera_y);
+		SDL_WarpMouseInWindow(game->window, cursor->rect.x, cursor->rect.y);
 
 		SDL_RenderClear(game->renderer);
 
