@@ -6,8 +6,8 @@
 #define TILE_WIDTH 64
 #define TILE_HEIGHT 32
 
-#define WIN_WIDTH 800
-#define WIN_HEIGHT 600
+#define WIN_WIDTH 900
+#define WIN_HEIGHT 800
 
 #define TILE_SHEET_WIDTH 256
 #define TILE_SHEET_HEIGHT 735

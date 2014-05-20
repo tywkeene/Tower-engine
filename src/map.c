@@ -12,17 +12,11 @@
 #include "graphics.h"
 #include "map.h"
 
-extern int camera_x;
-extern int camera_y;
-
 map_tile_t *initialize_tile(bool pass, int sprite, int x, int y)
 {
 	map_tile_t *tile = malloc(sizeof(map_tile_t));
-	if(debug)
-		tile->passable = 1;
-	else
-		tile->passable = pass;
 
+	tile->passable = pass;
 	tile->sprite = sprite;
 
 	tile->rect.x = x;
@@ -50,52 +44,63 @@ map_tile_t *screen_to_iso(map_t *map, int x, int y)
 		[x * TILE_HEIGHT_HALF - y * TILE_HEIGHT_HALF];
 }
 
-map_t *initialize_map(SDL_Renderer *renderer, const char *texture_filename)
+map_t *initialize_map(game_t *game, const char *texture_filename)
 {
 	int i, j;
-	int x = 0, y = 0;
+	int x = TILE_WIDTH, y = TILE_HEIGHT;
 	map_t *map = malloc(sizeof(map_t));
-	map->renderer = renderer;
+
+	map->renderer = game->renderer;
 	map->texture = initialize_texture(map->renderer, texture_filename);
 	get_tileset(map->tileset);
 
-	for(i = 0; i < MAP_WIDTH; i++){
-		for(j = 0; j < MAP_HEIGHT; j++){
+	for(i = 0; i < MAP_WIDTH; i++)
+		for(j = 0; j < MAP_HEIGHT; j++)
 			map->tiles[i][j] = malloc(sizeof(map_tile_t));
+
+	for(i = MAP_WIDTH - 1; i >= 0; i--){
+		for(j = MAP_HEIGHT - 1; j >= 0; j--){
 			map->tiles[i][j] = initialize_tile(1, 0, x, y);
-			x += TILE_WIDTH;
-			y += TILE_HEIGHT;
+
+			x = ((j * TILE_WIDTH_HALF) + (i * TILE_WIDTH_HALF) / 2);
+			y = ((i * TILE_WIDTH_HALF) - (j * TILE_HEIGHT_HALF) / 2);
 		}
 	}
 
 	fprintf(stdout, "Initialized map with dimensions (in tiles): %dx%d\n", 
-			(MAP_WIDTH), (MAP_HEIGHT));
-	fprintf(stdout, "\t%d total tiles\n", 
-			(MAP_WIDTH) * (MAP_HEIGHT));
+			MAP_WIDTH, MAP_HEIGHT);
+	fprintf(stdout, "\t%d total tiles\n", (MAP_WIDTH * MAP_HEIGHT));
 
 	return map;
 }
 
-void draw_map(map_t *map)
+void draw_map(game_t *game)
 {
-	SDL_Rect rect;
+	SDL_Rect *rect;
 	int i, j;
 	int sprite;
-	for(i = MAP_WIDTH - 1; i > 0; i--){
-		for(j = MAP_WIDTH - 1; j > 0; j--){
 
-			rect = map->tiles[i][j]->rect;
+	for(i = MAP_WIDTH - 1; i >= 0; i--){
+		for(j = MAP_WIDTH - 1; j >= 0; j--){
 
-			rect.x = j * (TILE_WIDTH / 2) + i * (TILE_WIDTH / 2) - camera_x;
-			rect.y = i * (TILE_HEIGHT / 2) - j * (TILE_HEIGHT / 2) - camera_y;
+			rect = &game->map->tiles[i][j]->rect;
 
-			sprite = map->tiles[i][j]->sprite;
+			/*
+			rect.x = j * (TILE_WIDTH / 2) + i * (TILE_WIDTH / 2) -
+				game->camera->rect.x;
+			rect.y = i * (TILE_HEIGHT / 2) - j * (TILE_HEIGHT / 2) -
+				game->camera->rect.y;
+				*/
 
-			if(rect.x <= 10 || rect.x <= WIN_WIDTH ||
-					rect.y <= 10 || rect.y <= WIN_HEIGHT)
-				if(SDL_RenderCopy(map->renderer, map->texture,
-							&map->tileset[sprite], &rect) != 0)
+			sprite = game->map->tiles[i][j]->sprite;
+
+			if(rect->x <= 10 || rect->x <= WIN_WIDTH ||
+					rect->y <= 10 || rect->y <= WIN_HEIGHT)
+				if(SDL_RenderCopy(game->map->renderer, game->map->texture,
+							&game->map->tileset[sprite], rect) != 0){
 					report_error();
+					game->running = 0;
+				}
 		}
 	}
 }

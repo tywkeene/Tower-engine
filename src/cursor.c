@@ -13,50 +13,44 @@
 #include "cursor.h"
 #include "map.h"
 
-int camera_y;
-int camera_x;
-
-void update_cursor(map_t *map, cursor_t *cursor)
+void update_cursor(game_t *game)
 {
-	SDL_RenderCopy(cursor->renderer, cursor->texture, 
-			&cursor->tileset[cursor->cur_sprite], &cursor->rect);
+	SDL_RenderCopy(game->cursor->renderer, game->cursor->texture, 
+			&game->cursor->tileset[game->cursor->cur_sprite],
+			&game->cursor->rect);
+	SDL_WarpMouseInWindow(game->window, game->camera->rect.x,
+			game->camera->rect.y);
 }
 
-void initialize_camera(game_t *game, map_t *map)
+camera_t *initialize_camera(int x, int y, int speed)
 {
-	int x, y;
+	camera_t *camera = malloc(sizeof(camera_t));
 
-	x = map->tiles[MAP_WIDTH / 2][MAP_HEIGHT / 2]->rect.x;
-	y = map->tiles[MAP_WIDTH / 2][MAP_HEIGHT / 2]->rect.y;
+	camera->rect.x = x;
+	camera->rect.y = y;
 
-	/*
-	camera_x = (y * (TILE_WIDTH / 2) + x * (TILE_WIDTH / 2));
-	camera_y = (x * (TILE_WIDTH / 2) - y * (TILE_WIDTH / 2));
-	*/
+	camera->speed = speed;
 
-	camera_x = x;
-	camera_y = y;
-
-	SDL_SetRelativeMouseMode(true);
+	return camera;
 }
 
-void do_camera_scroll(cursor_t *cursor, int x, int y)
+void do_camera_scroll(game_t *game, int x, int y)
 {
-	if(x <= 10)
-		camera_x -= 4;
+	if(x <= 5)
+		game->camera->rect.x -= game->camera->speed;
 	else if(x >= (WIN_WIDTH - 10))
-		camera_x += 4;
+		game->camera->rect.x += game->camera->speed;
 
-	if(y <= 10)
-		camera_y -= 4;
+	if(y <= 5)
+		game->camera->rect.y -= game->camera->speed;
 	else if(y >= (WIN_HEIGHT - 10))
-		camera_y += 4;
+		game->camera->rect.y += game->camera->speed;
 
-	cursor->rect.y = y;
-	cursor->rect.x = x;
+	game->cursor->rect.x = x;
+	game->cursor->rect.y = y;
 }
 
-void handle_input(SDL_Event event, game_t *game, cursor_t *cursor, map_t *map)
+void handle_input(SDL_Event event, game_t *game)
 {
 	int x, y;
 
@@ -69,13 +63,15 @@ void handle_input(SDL_Event event, game_t *game, cursor_t *cursor, map_t *map)
 	case SDL_KEYDOWN:
 		if(event.key.keysym.sym == SDLK_q)
 			game->running = false;
+		break;
 	case SDL_MOUSEBUTTONDOWN:
+		fprintf(stdout, "(%d,%d)\n", x, y);
 		break;
 	case SDL_MOUSEBUTTONUP:
 		break;
 
 	case SDL_MOUSEMOTION:
-		do_camera_scroll(cursor, x, y);
+		do_camera_scroll(game, x, y);
 		break;
 	default:
 		break;
@@ -87,7 +83,7 @@ cursor_t *initialize_cursor(const char *filename, SDL_Renderer *renderer, int x,
 	cursor_t *cursor = malloc(sizeof(cursor_t));
 	cursor->rect.h = 32;
 	cursor->rect.w = 64;
-	fprintf(stdout, "(%d,%d)\n",x, y);
+	fprintf(stdout, "(%d,%d)\n", x, y);
 	cursor->rect.x = x;
 	cursor->rect.y = y;
 	cursor->last = cursor->rect;

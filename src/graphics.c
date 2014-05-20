@@ -16,7 +16,7 @@ SDL_Texture *initialize_texture(SDL_Renderer *renderer, const char *filename)
 {
 	SDL_Texture *texture = IMG_LoadTexture(renderer, filename);
 	if(texture == NULL)
-		img_report_error();
+		img_report_error(NULL);
 	fprintf(stdout, "Loaded texture: %s\n", filename);
 	return texture;
 }
@@ -29,8 +29,6 @@ void get_tileset(SDL_Rect set[NUM_TILES])
 	fprintf(stdout, "\tTile dimensions: %dx%d\n", TILE_HEIGHT, TILE_WIDTH);
 	fprintf(stdout, "\tTiles in a sheet: %d\n\n", NUM_TILES);
 	for(i = 0; i < NUM_TILES; i++){
-		if(debug)
-			fprintf(stdout, "Got sprite:%d: (%d,%d)\n", i, x, y);
 		set[i].x = x;
 		set[i].y = y;
 		set[i].w = TILE_WIDTH;

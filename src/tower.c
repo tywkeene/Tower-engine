@@ -10,15 +10,11 @@
 #include <SDL2/SDL_image.h>
 
 #include "tower.h"
-#include "graphics.h"
 #include "cursor.h"
+#include "graphics.h"
 #include "map.h"
 
 #define FPS 60
-
-bool debug;
-extern int camera_x;
-extern int camera_y;
 
 void cap_frame_rate(void)
 {
@@ -33,27 +29,17 @@ void cap_frame_rate(void)
 void main_game_loop(game_t *game)
 {
 	SDL_Event event;
-	cursor_t *cursor; 
-	map_t *map;
 
-	map = initialize_map(game->renderer, "res/sprites/tile.png");
-
-	cursor = initialize_cursor("res/sprites/cursor.png", game->renderer, 
-			map->tiles[MAP_WIDTH / 2][MAP_HEIGHT / 2]->rect.x,
-			map->tiles[MAP_WIDTH / 2][MAP_HEIGHT / 2]->rect.y);
-
-	initialize_camera(game, map);
 	cap_frame_rate();
 
 	while(game->running){
 		while(SDL_WaitEventTimeout(&event, 0.5))
-			handle_input(event, game, cursor, map);
-		SDL_WarpMouseInWindow(game->window, cursor->rect.x, cursor->rect.y);
+			handle_input(event, game);
 
 		SDL_RenderClear(game->renderer);
 
-		draw_map(map);
-		update_cursor(map, cursor);
+		draw_map(game);
+		update_cursor(game);
 
 		SDL_RenderPresent(game->renderer);
 		cap_frame_rate();
@@ -65,16 +51,26 @@ game_t *initialize_game(void)
 	game_t *game = malloc(sizeof(game_t));
 	SDL_Init(SDL_INIT_EVERYTHING);
 	game->running = 1;
-	game->window = SDL_CreateWindow("Tower", SDL_WINDOWPOS_CENTERED, 
+
+	game->window = SDL_CreateWindow("Tower engine", SDL_WINDOWPOS_CENTERED, 
 			SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, 0);
 	game->renderer = SDL_CreateRenderer(game->window, -1,
 			SDL_RENDERER_ACCELERATED);
 
 	if(game->renderer == NULL || game->window == NULL){
-		report_error();
 		game->running = 0;
-		return NULL;
+		report_error();
 	}
+
+	game->camera = initialize_camera(WIN_WIDTH / 2, WIN_HEIGHT / 2, 2);
+	game->map = initialize_map(game, "res/sprites/tile.png");
+	game->cursor = initialize_cursor("res/sprites/cursor.png", game->renderer, 
+			game->map->tiles[0][0]->rect.x,
+		       	game->map->tiles[0][0]->rect.y);
+	SDL_SetRelativeMouseMode(true);
+
+	initialize_graphics();
+
 	fprintf(stdout, "Intialized game object\n");
 	fprintf(stdout, "\tResolution: %dx%d\n", WIN_WIDTH, WIN_HEIGHT);
 	return game;
@@ -94,9 +90,12 @@ int main(int argc, char **argv)
 {
 	game_t *game;
 
+	if((game = initialize_game()) == NULL)
+		exit(-1);
+
 	if(argc > 1){
 		if(strncmp(argv[1], "debug", strlen(argv[1]) + 1) == 0){
-			debug = 1;
+			game->debug = 1;
 			fprintf(stderr, "Running in debug mode\n");
 		}
 		else
@@ -105,8 +104,6 @@ int main(int argc, char **argv)
 	else
 		fprintf(stdout, "No arguments provided\n");
 
-	game = initialize_game();
-	initialize_graphics();
 	main_game_loop(game);
 	cleanup(game);
 	return 0;
