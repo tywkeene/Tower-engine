@@ -10,6 +10,9 @@
 #define img_report_error(ret) fprintf(stderr, "%s [%s():%d]: %s\n", __FILE__, __FUNCTION__, \
         __LINE__ - 1, IMG_GetError());
 
+#define print_coords(msg, x, y) if(msg != NULL){ fprintf(stdout, "%s: (%d,%d)\n", msg, x, y); } \
+	else{ fprintf(stdout, "(%d,%d)", x, y); }
+
 typedef struct game_t{
 	bool debug;
 	struct cursor_t *cursor;

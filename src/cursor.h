@@ -6,8 +6,8 @@
 #include "map.h"
 #include "graphics.h"
 
-#define CURSOR_WIDTH TILE_WIDTH
-#define CURSOR_HEIGHT TILE_HEIGHT
+#define CURSOR_WIDTH 16
+#define CURSOR_HEIGHT 16
 
 typedef struct camera_t{
 	SDL_Rect rect;
@@ -15,18 +15,21 @@ typedef struct camera_t{
 }camera_t;
 
 typedef struct cursor_t{
+    int cur_sprite;
     SDL_Rect rect;
     SDL_Rect last;
-    SDL_Texture *texture;
     SDL_Rect tileset[NUM_TILES];
+    SDL_Texture *texture;
     SDL_Renderer *renderer;
-    int cur_sprite;
 }cursor_t;
 
 void update_cursor(game_t *game);
-camera_t *initialize_camera(int x, int y, int speed);
+void destroy_camera(camera_t *camera);
+camera_t *initialize_camera(game_t *game, int x, int y, int speed);
+void camera_goto(game_t *game, int x, int y);
 void do_camera_scroll(game_t *game, int x, int y);
+void destroy_cursor(cursor_t *cursor);
 void handle_input(SDL_Event event, game_t *game);
-cursor_t *initialize_cursor(const char *filename, SDL_Renderer *renderer, int x, int y);
+cursor_t *initialize_cursor(game_t *game, const char *filename, SDL_Renderer *renderer, int x, int y);
 
 #endif 

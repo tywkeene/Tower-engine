@@ -1,8 +1,8 @@
-CC = gcc
+CC = clang
 SDL_CFLAGS = $(shell sdl2-config --cflags)
-SDL_LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image
-CFLAGS = -std=c99 -D_POSIX_SOURCE -Wall -g $(SDL_CFLAGS)
-LINK = $(SDL_LDFLAGS) -lm
+SDL_LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image -lSDL_ttf
+CFLAGS =  -std=c11 -Wall -g $(SDL_CFLAGS)
+LINK = $(SDL_LDFLAGS)
 VPATH = src/
 OUT = bin/
 OBJ = obj/
