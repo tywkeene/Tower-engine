@@ -4,8 +4,8 @@
 #include "graphics.h"
 #include "cursor.h"
 
-#define MAP_WIDTH 100 
-#define MAP_HEIGHT 100
+#define MAP_WIDTH 20
+#define MAP_HEIGHT 20
 
 #define MAP_SIZE (MAP_WIDTH * MAP_HEIGHT)
 

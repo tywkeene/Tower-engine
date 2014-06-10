@@ -83,7 +83,8 @@ void handle_input(SDL_Event event, game_t *game)
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 		tile = screen_to_grid(game, x, y);
-		tile->sprite = -1;
+		if(tile)
+			tile->sprite = -1;
 		break;
 	case SDL_MOUSEBUTTONUP:
 		break;

@@ -40,7 +40,7 @@ map_t *initialize_map(game_t *game, const char *texture_filename)
 
 	for(i = MAP_WIDTH-1; i >= 0; i--){
 		for(j = MAP_HEIGHT-1; j >= 0; j--){
-			map->tiles[i][j] = initialize_tile(TILE_PASS, 0, x, y);
+			map->tiles[i][j] = initialize_tile(TILE_PASS, 5, x, y);
 
 			x = CALC_SCR_ISO_X(i, j);
 			y = CALC_SCR_ISO_Y(i, j);
@@ -66,7 +66,11 @@ map_tile_t *screen_to_grid(game_t *game, int x, int y)
 	mapx = (x + y) / 2;
 	mapy = (x - y) / 2;
 
-	return game->map->tiles[mapx][mapy - 1];
+	if(mapx < 0 || mapx > MAP_WIDTH
+			|| mapy < 0 || mapy > MAP_HEIGHT)
+		return NULL;
+
+	return game->map->tiles[mapx][mapy];
 }
 
 void destroy_tile(map_tile_t *tile)
